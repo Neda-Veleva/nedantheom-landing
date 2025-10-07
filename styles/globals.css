@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  @apply bg-beige text-brown antialiased;
+}
+
+.container-narrow {
+  @apply max-w-2xl mx-auto px-4;
+}
+
+
