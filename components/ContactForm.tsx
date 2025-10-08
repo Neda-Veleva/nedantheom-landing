@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Alert from './Alert';
+import { useI18n } from '@/contexts/I18nProvider';
+import AnimatedText from './AnimatedText';
 
 type ContactFormState = {
   name: string;
@@ -8,6 +10,7 @@ type ContactFormState = {
 };
 
 export default function ContactForm() {
+  const { t } = useI18n();
   const [form, setForm] = useState<ContactFormState>({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
@@ -38,10 +41,10 @@ export default function ContactForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Submission failed');
 
-      setAlert({ type: 'success', message: 'Съобщението е изпратено успешно. Благодарим!' });
+      setAlert({ type: 'success', message: t('sentOk') });
       setForm({ name: '', email: '', message: '' });
     } catch (err: any) {
-      setAlert({ type: 'error', message: err?.message || 'Възникна грешка при изпращане.' });
+      setAlert({ type: 'error', message: err?.message || t('sentErr') });
     } finally {
       setIsSubmitting(false);
     }
@@ -51,45 +54,51 @@ export default function ContactForm() {
 
   return (
     <div className="container-narrow">
-      <form onSubmit={handleSubmit} className="bg-beige-100 border border-brown/10 rounded-xl shadow-soft p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur border border-white/10 rounded-xl shadow-elevated p-6 space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-brown">Име</label>
+          <label htmlFor="name" className="block text-sm font-medium text-beige">
+            <AnimatedText text={t('name')} font="500 14px ui-sans-serif, system-ui, -apple-system, Inter, sans-serif" />
+          </label>
           <input
             id="name"
             name="name"
             type="text"
             value={form.name}
             onChange={handleChange}
-            className="mt-1 w-full rounded-md border border-brown/20 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-mint"
-            placeholder="Вашето име"
+            className="mt-1 w-full rounded-md border border-white/10 bg-navy-800/60 text-beige placeholder:text-beige/40 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-steel-400/60"
+            placeholder={t('placeholderName')}
             required
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-brown">Имейл</label>
+          <label htmlFor="email" className="block text-sm font-medium text-beige">
+            <AnimatedText text={t('email')} font="500 14px ui-sans-serif, system-ui, -apple-system, Inter, sans-serif" />
+          </label>
           <input
             id="email"
             name="email"
             type="email"
             value={form.email}
             onChange={handleChange}
-            className="mt-1 w-full rounded-md border border-brown/20 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-mint"
-            placeholder="you@example.com"
+            className="mt-1 w-full rounded-md border border-white/10 bg-navy-800/60 text-beige placeholder:text-beige/40 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-steel-400/60"
+            placeholder={t('placeholderEmail')}
             required
           />
         </div>
 
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-brown">Съобщение</label>
+          <label htmlFor="message" className="block text-sm font-medium text-beige">
+            <AnimatedText text={t('message')} font="500 14px ui-sans-serif, system-ui, -apple-system, Inter, sans-serif" />
+          </label>
           <textarea
             id="message"
             name="message"
             rows={5}
             value={form.message}
             onChange={handleChange}
-            className="mt-1 w-full rounded-md border border-brown/20 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-mint"
-            placeholder="Как можем да помогнем?"
+            className="mt-1 w-full rounded-md border border-white/10 bg-navy-800/60 text-beige placeholder:text-beige/40 px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-steel-400/60"
+            placeholder={t('placeholderMessage')}
             required
           />
         </div>
@@ -97,9 +106,9 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={isDisabled}
-          className="inline-flex items-center justify-center rounded-md bg-brown text-beige px-4 py-2 font-medium shadow hover:bg-brown-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center rounded-md bg-steel-500 text-beige px-4 py-2 font-medium shadow hover:bg-steel-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Изпращане…' : 'Изпрати'}
+          {isSubmitting ? t('sending') : t('send')}
         </button>
 
         {alert && (

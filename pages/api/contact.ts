@@ -26,6 +26,12 @@ function ensureDataFile(): void {
   }
 }
 
+function clearContacts(): void {
+  ensureDataFile();
+  const filePath = getContactsJsonPath();
+  fs.writeFileSync(filePath, JSON.stringify([]), 'utf-8');
+}
+
 async function appendToContacts(payload: ContactPayload & { timestamp: string }) {
   ensureDataFile();
   const filePath = getContactsJsonPath();
@@ -39,7 +45,8 @@ async function sendEmail(payload: ContactPayload) {
   const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, MAIL_TO, MAIL_FROM } = process.env;
 
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS || !MAIL_TO) {
-    throw new Error('SMTP configuration is missing');
+    console.warn('SMTP configuration missing - skipping email send.');
+    return; // No-op in dev if not configured
   }
 
   const transporter = nodemailer.createTransport({
@@ -58,8 +65,18 @@ async function sendEmail(payload: ContactPayload) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
+  if (req.method === 'DELETE') {
+    try {
+      clearContacts();
+      return res.status(200).json({ ok: true });
+    } catch (err: any) {
+      console.error('Contact API delete error:', err);
+      return res.status(500).json({ ok: false, error: err?.message || 'Internal Server Error' });
+    }
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+    res.setHeader('Allow', 'POST, DELETE');
     return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
   }
 

@@ -7,11 +7,11 @@ html, body, #__next {
 }
 
 body {
-  @apply bg-beige text-brown antialiased;
+  @apply text-beige antialiased bg-gradient-to-b from-navy-900 via-navy-800 to-navy-900;
 }
 
 .container-narrow {
-  @apply max-w-2xl mx-auto px-4;
+  @apply max-w-2xl mx-auto;
 }
 
 
