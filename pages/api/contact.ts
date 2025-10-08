@@ -42,7 +42,13 @@ async function appendToContacts(payload: ContactPayload & { timestamp: string })
 }
 
 async function sendEmail(payload: ContactPayload) {
-  const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, MAIL_TO, MAIL_FROM } = process.env;
+  const { EMAIL_ENABLED, SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, MAIL_TO, MAIL_FROM } = process.env;
+
+  // Hard switch to disable emails entirely unless explicitly enabled
+  if (EMAIL_ENABLED !== 'true') {
+    console.info('EMAIL_ENABLED is not true - skipping email send.');
+    return;
+  }
 
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS || !MAIL_TO) {
     console.warn('SMTP configuration missing - skipping email send.');
