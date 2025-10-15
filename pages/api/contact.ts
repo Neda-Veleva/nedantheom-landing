@@ -12,7 +12,9 @@ type ContactPayload = {
 type ApiResponse = { ok: true } | { ok: false; error: string };
 
 function getContactsJsonPath(): string {
-  return path.join(process.cwd(), 'data', 'contacts.json');
+  const inServerless = process.env.VERCEL === '1' || !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.NEXT_RUNTIME;
+  const baseDir = inServerless ? '/tmp' : path.join(process.cwd(), 'data');
+  return path.join(baseDir, 'contacts.json');
 }
 
 function ensureDataFile(): void {
