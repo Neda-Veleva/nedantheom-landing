@@ -6,7 +6,6 @@ import AnimatedText from '@/components/AnimatedText';
 import { useI18n } from '@/contexts/I18nProvider';
 import { useEffect } from 'react';
 
-const LanguageSwitcher = dynamic(() => import('@/components/LanguageSwitcher'), { ssr: false });
 
 const ContactForm = dynamic(() => import('@/components/ContactForm'), { ssr: false });
 
@@ -26,11 +25,7 @@ export default function LangHomePage() {
         <meta name="description" content={t('subtitle')} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div className="p-6 pb-0">
-        <div className="container-narrow">
-          <LanguageSwitcher />
-        </div>
-      </div>
+      <div className="p-6 pb-0" />
       <main className="flex flex-col items-center justify-center gap-10 p-6">
         {/* <div className="container-narrow text-center space-y-4" /> */}
 
