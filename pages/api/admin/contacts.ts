@@ -4,6 +4,9 @@ import { listContacts } from '@/lib/db';
 type ApiResponse = { ok: true; data: any } | { ok: false; error: string };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
+  if (process.env.NODE_ENV === 'production' && process.env.ADMIN_ENABLE_IN_PROD !== 'true') {
+    return res.status(404).json({ ok: false, error: 'Not Found' });
+  }
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
