@@ -45,6 +45,12 @@ Option B (explicit): Call the protected migration route once after setting `MIGR
 curl -X POST https://<your-domain>/api/migrate -H "x-migrate-token: $MIGRATE_TOKEN"
 ```
 
+## Admin (view/export contacts)
+- Page: `/admin` (client UI). Enter `ADMIN_TOKEN` to fetch data.
+- API: `GET /api/admin/contacts` with `x-admin-token: ADMIN_TOKEN` header.
+- Env:
+  - `ADMIN_TOKEN` – secret for admin access.
+
 ## Scripts
 - `dev` – start dev server
 - `build` – build for production

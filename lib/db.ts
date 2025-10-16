@@ -48,4 +48,15 @@ export async function insertContact(name: string, email: string, message: string
   return rows[0];
 }
 
+export async function listContacts(): Promise<ContactRecord[]> {
+  const sql = getSql();
+  await ensureContactsTableExists();
+  const rows = (await sql(
+    `select id, name, email, message, created_at
+     from contacts
+     order by created_at desc`
+  )) as unknown as ContactRecord[];
+  return rows;
+}
+
 
