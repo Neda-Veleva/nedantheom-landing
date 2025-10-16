@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 import nodemailer from 'nodemailer';
+import { insertContact } from '@/lib/db';
 
 type ContactPayload = {
   name: string;
@@ -95,12 +96,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   try {
+    // Store in Postgres (Neon)
+    await insertContact(name, email, message);
+    // Optionally still try local JSON in dev for convenience
     const record = { name, email, message, timestamp: new Date().toISOString() };
     try {
       await appendToContacts(record);
     } catch (writeErr) {
-      console.warn('contacts.json write failed (continuing):', writeErr);
-      // continue to email even if file write fails (e.g., Vercel read-only FS)
+      // Best-effort only, ignore in prod
     }
     await sendEmail({ name, email, message });
     return res.status(200).json({ ok: true });

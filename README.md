@@ -29,11 +29,13 @@ SMTP_USER=your_smtp_username
 SMTP_PASS=your_smtp_password
 MAIL_FROM="Nedantheom <no-reply@example.com>"
 MAIL_TO=owner@example.com
+DATABASE_URL="postgresql://user:password@ep-xxx.neon.tech/db?sslmode=require"
 ```
 
 ## Deploying to Vercel
 - Deploy directly to Vercel.
-- Note: Vercel’s serverless file system is read-only/ephemeral. The API route will still send email; writing to `data/contacts.json` is best-effort and may fail (logged). For durable storage, use a DB or Vercel KV.
+- Set `DATABASE_URL` in Project Settings → Environment Variables to your Neon connection string.
+- Note: Vercel’s serverless file system is read-only/ephemeral. Durable storage is handled by Neon Postgres.
 
 ## Scripts
 - `dev` – start dev server
@@ -46,8 +48,8 @@ MAIL_TO=owner@example.com
 - `pages/index.tsx` – landing page
 - `components/SignBoard.tsx` – swinging sign board
 - `components/ContactForm.tsx` – contact form with alerts
-- `pages/api/contact.ts` – API route to write JSON and send email
-- `data/contacts.json` – local JSON storage (dev)
+- `pages/api/contact.ts` – API route to store in Neon Postgres and send email
+- `data/contacts.json` – local JSON storage (dev only; not used in prod)
 - `styles/globals.css` – Tailwind setup
 
 ## Styling
