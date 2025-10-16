@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import type { GetServerSideProps } from 'next';
 
 type Contact = {
   id: string;
@@ -9,13 +10,6 @@ type Contact = {
 };
 
 export default function AdminPage() {
-  if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ADMIN_ENABLE_IN_PROD !== 'true') {
-    if (typeof window !== 'undefined') {
-      // Redirect away if someone navigates directly in production
-      window.location.replace('/');
-    }
-    return null;
-  }
   const [token, setToken] = useState('');
   const [data, setData] = useState<Contact[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -122,5 +116,12 @@ export default function AdminPage() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    return { notFound: true };
+  }
+  return { props: {} };
+};
 
 

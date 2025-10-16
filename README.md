@@ -50,9 +50,7 @@ curl -X POST https://<your-domain>/api/migrate -H "x-migrate-token: $MIGRATE_TOK
 - API: `GET /api/admin/contacts` with `x-admin-token: ADMIN_TOKEN` header.
 - Env:
   - `ADMIN_TOKEN` – secret for admin access.
-  - `ADMIN_ENABLE_IN_PROD` (server, default false)
-  - `NEXT_PUBLIC_ADMIN_ENABLE_IN_PROD` (client, default false)
-    - Set both to `true` to expose admin in production; otherwise it's disabled/404.
+  - Note: Admin UI/API are disabled (404) in production by design; use Development/Preview environments.
 
 ## Scripts
 - `dev` – start dev server
