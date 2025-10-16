@@ -37,6 +37,14 @@ DATABASE_URL="postgresql://user:password@ep-xxx.neon.tech/db?sslmode=require"
 - Set `DATABASE_URL` in Project Settings → Environment Variables to your Neon connection string.
 - Note: Vercel’s serverless file system is read-only/ephemeral. Durable storage is handled by Neon Postgres.
 
+### One-time migration (create table)
+Option A (automatic on first write): The API lazily creates `contacts` table.
+
+Option B (explicit): Call the protected migration route once after setting `MIGRATE_TOKEN`:
+```bash
+curl -X POST https://<your-domain>/api/migrate -H "x-migrate-token: $MIGRATE_TOKEN"
+```
+
 ## Scripts
 - `dev` – start dev server
 - `build` – build for production
