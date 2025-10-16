@@ -22,3 +22,7 @@ yarn-error.log*
 .vscode/
 .idea/
 
+
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo

@@ -1,4 +1,4 @@
-# NedAn Theom – Landing Page
+# Nedantheom – Landing Page
 
 Minimal one-page site built with Next.js (Pages Router), React, Tailwind CSS, and a contact form.
 
@@ -27,7 +27,7 @@ SMTP_PORT=587
 SMTP_SECURE=false
 SMTP_USER=your_smtp_username
 SMTP_PASS=your_smtp_password
-MAIL_FROM="NedAn Theom <no-reply@example.com>"
+MAIL_FROM="Nedantheom <no-reply@example.com>"
 MAIL_TO=owner@example.com
 ```
 

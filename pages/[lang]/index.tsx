@@ -21,7 +21,7 @@ export default function LangHomePage() {
   return (
     <>
       <Head>
-        <title>{t('title')} | NedAn Theom</title>
+        <title>{t('title')} | Nedantheom</title>
         <meta name="description" content={t('subtitle')} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
