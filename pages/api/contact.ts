@@ -1,115 +1,68 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import fs from 'fs';
-import path from 'path';
-import nodemailer from 'nodemailer';
-import { insertContact } from '@/lib/db';
+import type { NextApiRequest, NextApiResponse } from "next";
+import { Resend } from "resend";
 
 type ContactPayload = {
   name: string;
   email: string;
   message: string;
+  pageUrl?: string;
+  userAgent?: string;
 };
 
 type ApiResponse = { ok: true } | { ok: false; error: string };
 
-function getContactsJsonPath(): string {
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const baseDir = isDevelopment ? path.join(process.cwd(), 'data') : '/tmp';
-  return path.join(baseDir, 'contacts.json');
+function requireEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing ${name}`);
+  return v;
 }
 
-function ensureDataFile(): void {
-  const filePath = getContactsJsonPath();
-  const dirPath = path.dirname(filePath);
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
-  }
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify([]), 'utf-8');
-  }
-}
-
-function clearContacts(): void {
-  ensureDataFile();
-  const filePath = getContactsJsonPath();
-  fs.writeFileSync(filePath, JSON.stringify([]), 'utf-8');
-}
-
-async function appendToContacts(payload: ContactPayload & { timestamp: string }) {
-  ensureDataFile();
-  const filePath = getContactsJsonPath();
-  const raw = fs.readFileSync(filePath, 'utf-8');
-  const list = JSON.parse(raw) as Array<any>;
-  list.push(payload);
-  fs.writeFileSync(filePath, JSON.stringify(list, null, 2), 'utf-8');
-}
-
-async function sendEmail(payload: ContactPayload) {
-  const { EMAIL_ENABLED, SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS, MAIL_TO, MAIL_FROM } = process.env;
-
-  // Hard switch to disable emails entirely unless explicitly enabled
-  if (EMAIL_ENABLED !== 'true') {
-    console.info('EMAIL_ENABLED is not true - skipping email send.');
-    return;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ApiResponse>,
+) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
+    return res.status(405).json({ ok: false, error: "Method Not Allowed" });
   }
 
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS || !MAIL_TO) {
-    console.warn('SMTP configuration missing - skipping email send.');
-    return; // No-op in dev if not configured
-  }
-
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    secure: SMTP_SECURE === 'true',
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
-
-  await transporter.sendMail({
-    from: MAIL_FROM || SMTP_USER,
-    to: MAIL_TO,
-    subject: `New contact form message from ${payload.name}`,
-    text: `Name: ${payload.name}\nEmail: ${payload.email}\n\n${payload.message}`,
-  });
-}
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ApiResponse>) {
-  if (req.method === 'DELETE') {
-    try {
-      clearContacts();
-      return res.status(200).json({ ok: true });
-    } catch (err: any) {
-      console.error('Contact API delete error:', err);
-      return res.status(500).json({ ok: false, error: err?.message || 'Internal Server Error' });
-    }
-  }
-
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST, DELETE');
-    return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
-  }
-
-  const { name, email, message } = req.body as Partial<ContactPayload>;
-
+  const { name, email, message, pageUrl, userAgent } = req.body as Partial<ContactPayload>;
   if (!name || !email || !message) {
-    return res.status(400).json({ ok: false, error: 'Missing required fields' });
+    return res.status(400).json({ ok: false, error: "Missing required fields" });
   }
 
   try {
-    // Store in Postgres (Neon)
-    await insertContact(name, email, message);
-    // Optionally still try local JSON in dev for convenience
-    const record = { name, email, message, timestamp: new Date().toISOString() };
-    try {
-      await appendToContacts(record);
-    } catch (writeErr) {
-      // Best-effort only, ignore in prod
-    }
-    await sendEmail({ name, email, message });
+    const resend = new Resend(requireEnv("RESEND_API_KEY"));
+    const to = requireEnv("RESEND_TO_EMAIL");
+    const from = requireEnv("RESEND_FROM_EMAIL");
+
+    const safe = (s: string) => s.replace(/\r/g, "").trim();
+    const safeName = safe(name).slice(0, 120);
+    const safeEmail = safe(email).slice(0, 254);
+    const safeMessage = message.trim();
+
+    await resend.emails.send({
+      from,
+      to,
+      subject: `Ново съобщение от сайта: ${safeName}`,
+      replyTo: safeEmail,
+      text: [
+        `Име: ${safeName}`,
+        `Имейл: ${safeEmail}`,
+        pageUrl ? `Страница: ${pageUrl}` : null,
+        userAgent ? `UA: ${userAgent}` : null,
+        "",
+        "Съобщение:",
+        safeMessage,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
+
     return res.status(200).json({ ok: true });
-  } catch (err: any) {
-    console.error('Contact API error:', err);
-    return res.status(500).json({ ok: false, error: err?.message || 'Internal Server Error' });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Unknown error";
+    return res.status(500).json({ ok: false, error: msg });
   }
 }
 

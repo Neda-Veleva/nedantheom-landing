@@ -7,11 +7,71 @@ html, body, #__next {
 }
 
 body {
-  @apply text-beige antialiased bg-gradient-to-b from-navy-900 via-navy-800 to-navy-900;
+  @apply antialiased;
 }
 
 .container-narrow {
   @apply max-w-2xl mx-auto;
+}
+
+@layer base {
+  body {
+    overscroll-behavior: none;
+  }
+
+  @keyframes satin-shift {
+    0% {
+      transform: translate3d(-1.8%, -1.2%, 0) rotate(-0.8deg) scale(1.03);
+      filter: blur(18px) saturate(1.22) contrast(1.04);
+      opacity: 0.88;
+      background-position: 18% 12%, 78% 22%, 62% 88%, 0% 0%, 0% 0%;
+    }
+    50% {
+      transform: translate3d(1.6%, 1.2%, 0) rotate(0.8deg) scale(1.06);
+      filter: blur(16px) saturate(1.35) contrast(1.08);
+      opacity: 0.98;
+      background-position: 24% 18%, 72% 16%, 56% 82%, 12% 8%, 0% 0%;
+    }
+    100% {
+      transform: translate3d(-1.8%, -1.2%, 0) rotate(-0.8deg) scale(1.03);
+      filter: blur(18px) saturate(1.22) contrast(1.04);
+      opacity: 0.88;
+      background-position: 18% 12%, 78% 22%, 62% 88%, 0% 0%, 0% 0%;
+    }
+  }
+
+  @keyframes satin-shimmer {
+    0% {
+      transform: translate3d(-6%, -3%, 0) rotate(-10deg);
+      opacity: 0.55;
+    }
+    50% {
+      transform: translate3d(6%, 4%, 0) rotate(10deg);
+      opacity: 0.95;
+    }
+    100% {
+      transform: translate3d(-6%, -3%, 0) rotate(-10deg);
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes satin-bloom {
+    0% {
+      opacity: 0.10;
+      transform: translate3d(-1%, -0.5%, 0) scale(1.02);
+      filter: blur(28px) saturate(1.15);
+    }
+    45% {
+      opacity: 0.32;
+      transform: translate3d(1.2%, 0.8%, 0) scale(1.05);
+      filter: blur(22px) saturate(1.28);
+    }
+    100% {
+      opacity: 0.10;
+      transform: translate3d(-1%, -0.5%, 0) scale(1.02);
+      filter: blur(28px) saturate(1.15);
+    }
+  }
 }
 
 

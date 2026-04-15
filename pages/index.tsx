@@ -1,18 +1,20 @@
-import type { GetServerSideProps } from 'next';
+import Head from "next/head";
+import { MaintenanceApp } from "@/components/maintenance/MaintenanceApp";
 
-export default function RedirectRoot() {
-  return null;
+export default function HomePage() {
+  return (
+    <>
+      <Head>
+        <title>Nedantheom</title>
+        <meta
+          name="description"
+          content="Сайтът ни е в процес на разработка. Свържете се с нас за въпроси и заявки."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <MaintenanceApp />
+    </>
+  );
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const accept = req.headers['accept-language'] || '';
-  const to = accept.toLowerCase().includes('bg') ? '/bg' : '/en';
-  return {
-    redirect: {
-      destination: to,
-      permanent: false,
-    },
-  };
-};
 
 
